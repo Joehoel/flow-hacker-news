@@ -58,6 +58,7 @@ interface IFlow<TMethods, TSettings> {
   showResult: (...result: JSONRPCResponse<TMethods>[]) => void;
   run: () => void;
 }
+
 export class Flow<TMethods, TSettings = Record<string, string>>
   implements IFlow<TMethods, TSettings>
 {
@@ -95,6 +96,16 @@ export class Flow<TMethods, TSettings = Record<string, string>>
    */
   public on(method: keyof MethodsObj<TMethods>, callbackFn: (params: Parameters) => void) {
     this.methods[method] = callbackFn.bind(this, this.data.parameters);
+  }
+
+  public emit(method: keyof MethodsObj<TMethods>, parameters: Parameters = []) {
+    // JSON RPC??
+    return console.log(
+      JSON.stringify({
+        method: "Flow.Launcher.OpenSettingDialog",
+        parameters: [],
+      })
+    );
   }
 
   /**

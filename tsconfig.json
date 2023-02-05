@@ -5,6 +5,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es6",
+    "lib": ["es2021"],
     "moduleResolution": "node",
     "sourceMap": true,
     "rootDir": "./src",

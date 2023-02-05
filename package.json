@@ -1,7 +1,7 @@
 {
-  "name": "flow-launcher-plugin-template-node",
+  "name": "flow-hacker-news",
   "version": "1.0.0",
-  "description": "Flow Launcher plugin template for Node.js",
+  "description": "Flow Launcher plugin for viewing the front page of Hacker News",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc && pkg package.json",
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "flow-launcher-helper": "^2.1.0",
-    "open": "^8.4.0"
+    "open": "^8.4.0",
+    "rss-parser": "^3.12.0"
   }
 }

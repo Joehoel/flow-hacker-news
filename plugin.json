@@ -1,12 +1,12 @@
 {
-  "ID": "890a6a95-5d36-4fab-bce1-b4c3f1239098",
-  "ActionKeyword": "npm",
-  "Name": "Search NPM",
-  "Description": "Search NPM packages",
+  "ID": "140f3da0-7d14-4b20-b897-b4cb155fec2d",
+  "ActionKeyword": "hn",
+  "Name": "Hacker News",
+  "Description": "Flow Launcher plugin for viewing the front page of Hacker News",
   "Author": "Joël Kuijper",
-  "Version": "0.0.1",
+  "Version": "1.0.0",
   "Language": "executable",
-  "ExecuteFileName": "./dist/flow-launcher-plugin-template-node.exe",
-  "Website": "https://github.com/Joehoel/flow-launcher-plugin-template-node",
-  "IcoPath": "./assets/npm.png"
+  "ExecuteFileName": "./dist/flow-hacker-news.exe",
+  "Website": "https://github.com/Joehoel/flow-hacker-news",
+  "IcoPath": "./assets/hacker-news.png"
 }
