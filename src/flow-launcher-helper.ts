@@ -15,7 +15,8 @@ type JSONRPCMethods =
   | "Flow.Launcher.StopLoadingBar"
   | "Flow.Launcher.ReloadAllPluginData"
   | "Flow.Launcher.CopyToClipboard"
-  | "query";
+  | "query"
+  | "context_menu";
 
 type Methods<T> = JSONRPCMethods | T;
 
@@ -33,8 +34,8 @@ type ParametersAllowedTypes =
   | Record<string, unknown>
   | ParametersAllowedTypes[];
 
-type Method<T> = keyof MethodsObj<T>;
 type Parameters = ParametersAllowedTypes[];
+type Method<T> = keyof MethodsObj<T>;
 
 interface Data<TMethods, TSettings> {
   method: Method<TMethods>;
@@ -46,10 +47,11 @@ export interface JSONRPCResponse<TMethods> {
   title: string;
   subtitle?: string;
   method?: Method<TMethods>;
-  params?: Parameters;
+  parameters?: Parameters;
   dontHideAfterAction?: boolean;
   iconPath?: string;
   score?: number;
+  context?: Parameters;
 }
 
 interface IFlow<TMethods, TSettings> {
@@ -103,7 +105,7 @@ export class Flow<TMethods, TSettings = Record<string, string>>
     return console.log(
       JSON.stringify({
         method: "Flow.Launcher.OpenSettingDialog",
-        parameters: [],
+        parameters: [""],
       })
     );
   }
@@ -121,11 +123,12 @@ export class Flow<TMethods, TSettings = Record<string, string>>
         Subtitle: r.subtitle,
         JsonRPCAction: {
           method: r.method,
-          parameters: r.params || [],
+          parameters: r.parameters || [],
           dontHideAfterAction: r.dontHideAfterAction || false,
         },
         IcoPath: r.iconPath || this.defaultIconPath,
-        score: r.score || 0,
+        ContextData: r.context || [],
+        Score: r.score || 0,
       };
     });
 

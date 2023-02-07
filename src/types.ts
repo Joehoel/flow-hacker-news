@@ -1,19 +1,21 @@
 import Parser from "rss-parser";
 
-export enum Topic {
-  Active = "active",
-  AskHN = "ask",
-  Best = "best",
-  BestComments = "bestcomments",
-  Classic = "classic",
-  FrontPage = "frontpage",
-  Invited = "invited",
-  Jobs = "jobs",
-  Launches = "launches",
-  NewComments = "newcomments",
-  Newest = "newest",
-  Polls = "polls",
-  Pool = "pool",
-  ShowHN = "show",
-  WhoIsHiring = "whoishiring",
-}
+export const topics = [
+  "active",
+  "ask",
+  "best",
+  "bestcomments",
+  "classic",
+  "frontpage",
+  "invited",
+  "jobs",
+  "launches",
+  "newcomments",
+  "newest",
+  "polls",
+  "pool",
+  "show",
+  "whoishiring",
+];
+
+export type Topic = typeof topics[number];

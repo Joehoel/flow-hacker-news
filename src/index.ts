@@ -1,20 +1,25 @@
+import fuzzy from "fuzzy";
 import open from "open";
-import { Flow } from "./flow-launcher-helper";
-import Parser from "rss-parser";
-import { JSONRPCResponse } from "flow-launcher-helper";
 import os from "os";
-import { Topic } from "./types";
+import Parser from "rss-parser";
+import { Flow, JSONRPCResponse } from "./flow-launcher-helper";
+import { Topic, topics } from "./types";
+import childProcess from "child_process";
 
 const parser = new Parser({
   headers: {
     "User-Agent": `Flow Launcher Extension, Flow/1.0.0 (${os.type()} ${os.release()})`,
   },
 });
+
+const copy = (content: string) => childProcess.spawn("clip").stdin.end(content);
 // The events are the custom events that you define in the flow.on() method.
-const events = ["open", "topic"] as const;
+const events = ["open", "topic", "comments", "copy"] as const;
 type Events = typeof events[number];
 
-const flow = new Flow<Events>("assets/npm.png");
+const df = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+const flow = new Flow<Events>("assets/hacker-news.png");
 
 function getPoints(item: Parser.Item) {
   const matches = item.contentSnippet?.match(/(?<=Points:\s*)(\d+)/g);
@@ -44,37 +49,86 @@ function getScoreBasedOnSearchTerm(searchTerm: string, item: Parser.Item) {
 flow.on("query", async params => {
   const searchTerm = params[0].toString();
 
-  try {
-    const feed = await getStories(Topic.FrontPage);
-    const results: JSONRPCResponse<Events>[] = feed.map(item => {
-      return {
-        title: item.title ?? "No title",
-        subtitle: `${getPoints(item)} points | ${getComments(item)} comments | by: ${
-          item.creator
-        } | ${item.pubDate}`,
-        method: "open",
-        score: searchTerm.length
-          ? getScoreBasedOnSearchTerm(searchTerm, item)
-          : parseInt(getPoints(item) ?? "0"),
-        params: [item.link!],
-        iconPath: "assets/hacker-news.png",
-      };
-    });
-    if (!results.length) {
-      throw new Error("No results found");
+  if (topics.includes(searchTerm.toLowerCase())) {
+    try {
+      const topic = searchTerm as Topic;
+
+      const feed = await getStories(topic);
+      const results: JSONRPCResponse<Events>[] = feed.map(item => {
+        return {
+          title: item.title ?? "No title",
+          subtitle: `${getPoints(item)} points | ${getComments(item)} comments | by: ${
+            item.creator
+          } | ${df.format(new Date(item.pubDate!))}`,
+          method: "open",
+          score: parseInt(getPoints(item) ?? "0"),
+          context: [item.comments!],
+          parameters: [item.link!],
+        };
+      });
+      if (!results.length) {
+        throw new Error("No results found");
+      }
+      flow.showResult(...results);
+    } catch (error) {
+      flow.showResult({
+        title: error instanceof Error ? error.message : "Something went wrong",
+      });
     }
-    return flow.showResult(...results);
-  } catch (error) {
-    return flow.showResult({
-      title: error instanceof Error ? error.message : "Something went wrong",
-      iconPath: "assets/hacker-news.png",
-    });
+
+    return;
   }
+
+  const result = fuzzy.filter(searchTerm, topics);
+
+  const items: JSONRPCResponse<Events>[] = result.map(item => ({
+    title: item.string.substring(0, 1).toUpperCase() + item.string.substring(1, item.string.length),
+    subtitle: `Filter topic: ${item.string}`,
+    method: "topic",
+    parameters: [item.string],
+    dontHideAfterAction: true,
+  }));
+
+  flow.showResult(...items);
+});
+
+flow.on("context_menu", params => {
+  const [url] = params;
+
+  flow.showResult({
+    title: "Go to Hacker News page",
+    subtitle: url.toString(),
+    method: "open",
+    parameters: [url],
+  });
+});
+
+flow.on("topic", async params => {
+  const topic = params[0].toString() as Topic;
+
+  console.log(
+    JSON.stringify({
+      method: "Flow.Launcher.ChangeQuery",
+      parameters: [`hn ${topic}`, true],
+    })
+  );
+
+  // console.log(
+  //   JSON.stringify({
+  //     method: "Flow.Launcher.ChangeQuery",
+  //     parameters: ["hallo wereld", true],
+  //   })
+  // );
 });
 
 flow.on("open", params => {
   const url = params[0].toString();
   open(url);
+});
+
+flow.on("copy", params => {
+  const url = params[0].toString();
+  copy(url);
 });
 
 flow.run();
