@@ -1,6 +1,6 @@
 {
   "name": "flow-hacker-news",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Flow Launcher plugin for viewing the front page of Hacker News",
   "main": "src/index.ts",
   "scripts": {
